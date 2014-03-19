@@ -1,8 +1,10 @@
 package fr.inria.juncoprovider;
 
+
 import org.apache.maven.surefire.common.junit4.JUnit4RunListener;
 import org.apache.maven.surefire.common.junit4.JUnit4RunListenerFactory;
 import org.apache.maven.surefire.common.junit4.JUnit4TestChecker;
+
 import org.apache.maven.surefire.providerapi.AbstractProvider;
 import org.apache.maven.surefire.report.*;
 import org.apache.maven.surefire.shade.org.apache.maven.shared.utils.io.SelectorUtils;
@@ -13,17 +15,18 @@ import org.apache.maven.surefire.util.RunOrderCalculator;
 import org.apache.maven.surefire.util.ScanResult;
 import org.apache.maven.surefire.util.TestsToRun;
 import org.apache.maven.surefire.util.internal.StringUtils;
+
 import org.jacoco.core.analysis.Analyzer;
 import org.jacoco.core.analysis.CoverageBuilder;
 import org.jacoco.core.analysis.IBundleCoverage;
 import org.jacoco.core.data.ExecFileLoader;
 import org.jacoco.core.data.ExecutionDataWriter;
 import org.jacoco.report.xml.XMLFormatter;
+
 import org.junit.runner.Request;
 import org.junit.runner.Result;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.RunNotifier;
-import sun.management.resources.agent;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -38,8 +41,6 @@ import org.jacoco.report.DirectorySourceFileLocator;
 import org.jacoco.report.FileMultiReportOutput;
 import org.jacoco.report.IReportVisitor;
 import org.jacoco.report.html.HTMLFormatter;
-
-
 
 import static java.lang.String.format;
 
@@ -75,8 +76,6 @@ public class Junco4Provider
     private final String agentAddress;
 
     private final int agentPort;
-
-
 
     private final ConsoleLogger logger;
 
