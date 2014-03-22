@@ -29,6 +29,7 @@ import org.junit.runner.Runner;
 import org.junit.runner.notification.RunNotifier;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -54,6 +55,7 @@ public class Junco4Provider
     private static final String AGENT_ADDRESS = "jacoco:address";
     private static final String AGENT_PORT = "jacoco:port";
     private static final String REPORT_DIR = "report:dir";
+    private static final String TRANSPLANT_FILE = "transplant:file";
     private static final String SOURCES_DIR = "sources:dir";
     private static final String HTML_REPORT = "html:report";
 
@@ -69,7 +71,7 @@ public class Junco4Provider
 
     private final ProviderParameters providerParameters;
 
-    private final RunOrderCalculator runOrderCalculator;
+    private RunOrderCalculator runOrderCalculator;
 
     private final ScanResult scanResult;
 
@@ -82,18 +84,32 @@ public class Junco4Provider
     public Junco4Provider( ProviderParameters booterParameters )
     {
         this.logger = booterParameters.getConsoleLogger();
-        this.providerParameters = booterParameters;
         this.testClassLoader = booterParameters.getTestClassLoader();
         this.scanResult = booterParameters.getScanResult();
-        this.runOrderCalculator = booterParameters.getRunOrderCalculator();
+        this.providerParameters = booterParameters;
+        Properties pp = providerParameters.getProviderProperties();
+        
+        String reportDir = pp.getProperty(REPORT_DIR, "target\\site\\junco\\");
+        String classesDir = pp.getProperty(CLASSES_DIR, "target\\classes");
+        String transplantFile = pp.getProperty(TRANSPLANT_FILE, "");
+
+        try {
+            this.runOrderCalculator = new CoverageRunOrderCalculator(
+                    classesDir, reportDir, transplantFile);
+        } catch (CoverageRunOrderException e ) {
+            this.runOrderCalculator = booterParameters.getRunOrderCalculator();
+            logger.info("Not coverage information found when trying to calculate run order or coverage info was corrupt. Default run order assumed. \n");
+            logger.info(e.getMessage());
+        }
+
         customRunListeners = JUnit4RunListenerFactory.
                 createCustomListeners(booterParameters.getProviderProperties().getProperty("listener"));
         jUnit4TestChecker = new JUnit4TestChecker( testClassLoader );
         requestedTestMethod = booterParameters.getTestRequest().getRequestedTestMethod();
 
         //Obtain address and port of the coverage agent
-        agentAddress = providerParameters.getProviderProperties().getProperty(AGENT_ADDRESS);
-        agentPort = Integer.valueOf(providerParameters.getProviderProperties().getProperty(AGENT_PORT, "6300"));
+        agentAddress = pp.getProperty(AGENT_ADDRESS);
+        agentPort = Integer.valueOf(pp.getProperty(AGENT_PORT, "6300"));
     }
 
     public RunResult invoke( Object forkTestSet )
@@ -158,7 +174,7 @@ public class Junco4Provider
         final Properties pp = providerParameters.getProviderProperties();
         final File classesDirectory = new File(pp.getProperty(CLASSES_DIR, "target\\classes"));
         final File sourceDirectory = new File(pp.getProperty(SOURCES_DIR, "src\\main"));
-        final File reportDirectory = new File(pp.getProperty(REPORT_DIR, "target\\site\\junco\\") + testCaseName);
+        final File reportDirectory = new File(pp.getProperty(REPORT_DIR, "target\\site\\junco\\"));
         reportDirectory.mkdirs();
 
         final boolean useHtmlReport = Boolean.valueOf(pp.getProperty(HTML_REPORT));
@@ -174,9 +190,11 @@ public class Junco4Provider
 
         // Create a concrete html report
         if ( useHtmlReport ) {
+            File f = new File(reportDirectory + "/" + testCaseName);
+            f.mkdirs();
             final HTMLFormatter htmlFormatter = new HTMLFormatter();
             final IReportVisitor htmlVisitor = htmlFormatter.createVisitor(
-                    new FileMultiReportOutput(reportDirectory));
+                    new FileMultiReportOutput(f));
             htmlVisitor.visitInfo(loader.getSessionInfoStore().getInfos(),
                     loader.getExecutionDataStore().getContents());
             htmlVisitor.visitBundle(bundle, new DirectorySourceFileLocator(
@@ -187,21 +205,26 @@ public class Junco4Provider
         //Create a xml report
         final XMLFormatter xmlFormatter = new XMLFormatter();
         xmlFormatter.setOutputEncoding("UTF-8");
-        final IReportVisitor xmlVisitor = xmlFormatter.createVisitor(
-                new FileOutputStream(new File(reportDirectory.getAbsolutePath() + "/jacoco.xml")));
+        File htmlFile = new File(reportDirectory.getAbsolutePath() + "/" + testCaseName + ".xml");
+        final IReportVisitor xmlVisitor = xmlFormatter.createVisitor(new FileOutputStream(htmlFile));
         xmlVisitor.visitInfo(loader.getSessionInfoStore().getInfos(),
                 loader.getExecutionDataStore().getContents());
         xmlVisitor.visitBundle(bundle, new DirectorySourceFileLocator(
                 sourceDirectory, "utf-8", 4));
         xmlVisitor.visitEnd();
+
+        //Write the exec to file
+        FileOutputStream fo = new FileOutputStream(reportDirectory.getAbsolutePath() +
+                "/" + testCaseName + ".exec");
+        final ExecutionDataWriter dataWriter = new ExecutionDataWriter(fo);
+        loader.getSessionInfoStore().accept(dataWriter);
+        loader.getExecutionDataStore().accept(dataWriter);
     }
 
     /*
     *   Dumps and resets the coverage information for the test case
     */
     private void dumpAndResetCoverageInformation(String testCaseName) {
-
-        String destFile = "jacoco-" + testCaseName + ".exec";
 
         final ExecDumpClient client = new ExecDumpClient() {
             @Override
@@ -221,12 +244,7 @@ public class Junco4Provider
         client.setRetryCount(10);
 
         try {
-            logger.info(format("Dumping execution data to %s", destFile));
-            final FileOutputStream stream = new FileOutputStream(destFile, false);
             final ExecFileLoader loader = client.dump("localhost", agentPort);
-            final ExecutionDataWriter dataWriter = new ExecutionDataWriter(stream);
-            loader.getSessionInfoStore().accept(dataWriter);
-            loader.getExecutionDataStore().accept(dataWriter);
             writeReports(testCaseName, loader);
         } catch (final IOException e) {
             logger.info("Unable to dump coverage data. Check that jacoco is properly set and in tcpserver output mode");
