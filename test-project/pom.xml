@@ -4,10 +4,10 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>fr.inria.covermath</groupId>
-  <artifactId>covermath</artifactId>
+  <artifactId>test-project</artifactId>
   <packaging>jar</packaging>
   <version>1.0-SNAPSHOT</version>
-  <name>covermath</name>
+  <name>Test project</name>
   <url>http://maven.apache.org</url>
 
   <properties>

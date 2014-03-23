@@ -2,13 +2,9 @@ package fr.inria.juncoprovider;
 
 import junit.framework.Assert;
 
-import org.json.simple.JSONObject;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.net.URISyntaxException;
 
 /*
  * Created by marcel on 20/03/14.
