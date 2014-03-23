@@ -1,10 +1,12 @@
 package fr.inria.juncoprovider;
 
-import junit.framework.Assert;
 
+import junit.framework.Assert;
+import org.apache.maven.surefire.util.TestsToRun;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.ArrayList;
 
 /*
  * Created by marcel on 20/03/14.
@@ -45,7 +47,7 @@ public class CoverageRunOrderCalculatorTest {
      */
     @Test
     public void testJSONFailure() throws Exception {
-        String classesDir = getClass().getResource("/classes").toURI().getPath();
+        String classesDir = getClass().getResource("/resource_classes").toURI().getPath();
         String coverageDir = getClass().getResource("/coverage").toURI().getPath();
         String transplantFile = getClass().getResource("/bad.json").toURI().getPath();
 
@@ -62,14 +64,27 @@ public class CoverageRunOrderCalculatorTest {
      */
     @Test
     public void testClassOrder() throws Exception {
-        String classesDir = getClass().getResource("/classes").toURI().getPath();
+        String classesDir = getClass().getResource("/resource_classes").toURI().getPath();
         String coverageDir = getClass().getResource("/coverage").toURI().getPath();
         String transplantFile = getClass().getResource("/transplant.json").toURI().getPath();
 
         CoverageRunOrderCalculator r = new CoverageRunOrderCalculator(
                 classesDir, coverageDir, transplantFile);
 
-        //r.orderTestClasses()
+        //A class loader that read classes from the resources dir
+        TestResourcesClassLoader loader = new TestResourcesClassLoader();
+        loader.setResourceDir(classesDir);
+        ArrayList<Class> ac = new ArrayList<Class>();
+        ac.add(loader.loadClass("fr.inria.testproject.Arithmetic"));
+        ac.add(loader.loadClass("fr.inria.testproject.Trigonometry"));
+
+        //Run the order
+        TestsToRun tr = r.orderTestClasses(new TestsToRun(ac));
+
+        Assert.assertTrue(
+                tr.getLocatedClasses()[0].getSimpleName().equals("Arithmetic"));
+        Assert.assertTrue(
+                tr.getLocatedClasses()[1].getSimpleName().equals("Trigonometry"));
     }
 
 }

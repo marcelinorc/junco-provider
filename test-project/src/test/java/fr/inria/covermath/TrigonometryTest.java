@@ -1,5 +1,6 @@
 package fr.inria.covermath;
 
+import fr.inria.testproject.Trigonometry;
 import org.junit.Test;
 import org.junit.Assert;
 

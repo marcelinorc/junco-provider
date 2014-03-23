@@ -1,4 +1,4 @@
-package fr.inria.covermath;
+package fr.inria.testproject;
 
 /**
  * Created by marcel on 23/02/14.
