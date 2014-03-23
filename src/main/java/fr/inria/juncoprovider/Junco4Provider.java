@@ -180,7 +180,6 @@ public class Junco4Provider
         final boolean useHtmlReport = Boolean.valueOf(pp.getProperty(HTML_REPORT));
 
 
-
         final CoverageBuilder coverageBuilder = new CoverageBuilder();
         final Analyzer analyzer = new Analyzer(loader.getExecutionDataStore(), coverageBuilder);
 
