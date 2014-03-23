@@ -21,9 +21,10 @@ public class TestResourcesClassLoader extends ClassLoader {
     protected Class<?> loadClass(final String name, final boolean resolve)
             throws ClassNotFoundException {
         try {
-            File f = new File(resourceDir + "/" + name + ".class");
+            File f = new File(resourceDir + "/" + name.replace(".", "/") + ".class");
             FileInputStream fi = new FileInputStream(f);
-            ByteBuffer bf = ByteBuffer.allocate((int)f.length());
+            //A tentative size
+            ByteBuffer bf = ByteBuffer.allocate(1024);
             fi.getChannel().read(bf);
             return defineClass(name, bf.array(), 0, bf.array().length);
         } catch ( IOException e ) {

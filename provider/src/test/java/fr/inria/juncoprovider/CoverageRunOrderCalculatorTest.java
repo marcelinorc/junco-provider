@@ -3,6 +3,7 @@ package fr.inria.juncoprovider;
 
 import junit.framework.Assert;
 import org.apache.maven.surefire.util.TestsToRun;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -13,12 +14,16 @@ import java.util.ArrayList;
  */
 public class CoverageRunOrderCalculatorTest {
 
+    private String getResourcePath(String name) throws Exception {
+        return getClass().getResource("/" + name).toURI().getPath();
+    }
+
     @Test
     public void testCreationOK() throws Exception {
         try {
-            String classesDir = getClass().getResource("/resource_classes").toURI().getPath();
-            String coverageDir = getClass().getResource("/coverage").toURI().getPath();
-            String transplantFile = getClass().getResource("/transplant.json").toURI().getPath();
+            String classesDir = getResourcePath("resource_classes");
+            String coverageDir = getResourcePath("coverage");
+            String transplantFile = getResourcePath("transplant.json");
 
             CoverageRunOrderCalculator r = new CoverageRunOrderCalculator(
                     classesDir, coverageDir, transplantFile);
@@ -47,9 +52,9 @@ public class CoverageRunOrderCalculatorTest {
      */
     @Test
     public void testJSONFailure() throws Exception {
-        String classesDir = getClass().getResource("/resource_classes").toURI().getPath();
-        String coverageDir = getClass().getResource("/coverage").toURI().getPath();
-        String transplantFile = getClass().getResource("/bad.json").toURI().getPath();
+        String classesDir = getResourcePath("resource_classes");
+        String coverageDir = getResourcePath("coverage");
+        String transplantFile = getResourcePath("bad.json");
 
         try {
             CoverageRunOrderCalculator r = new CoverageRunOrderCalculator(
@@ -64,9 +69,9 @@ public class CoverageRunOrderCalculatorTest {
      */
     @Test
     public void testClassOrder() throws Exception {
-        String classesDir = getClass().getResource("/resource_classes").toURI().getPath();
-        String coverageDir = getClass().getResource("/coverage").toURI().getPath();
-        String transplantFile = getClass().getResource("/transplant.json").toURI().getPath();
+        String classesDir = getResourcePath("resource_classes");
+        String coverageDir = getResourcePath("coverage");
+        String transplantFile = getResourcePath("transplant.json");
 
         CoverageRunOrderCalculator r = new CoverageRunOrderCalculator(
                 classesDir, coverageDir, transplantFile);

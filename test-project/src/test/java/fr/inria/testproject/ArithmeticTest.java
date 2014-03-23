@@ -1,7 +1,6 @@
-package fr.inria.covermath;
+package fr.inria.testproject;
 
 
-import fr.inria.testproject.Arithmetic;
 import org.junit.Test;
 import org.junit.Assert;
 

@@ -4,6 +4,7 @@ import org.jacoco.core.analysis.Analyzer;
 import org.jacoco.core.analysis.CoverageBuilder;
 import org.jacoco.core.analysis.IBundleCoverage;
 import org.jacoco.core.data.ExecFileLoader;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -15,14 +16,15 @@ import java.io.IOException;
 public class JuncoReportVisitorTest {
 
 
-    private static String ARITHMETIC_CLASS = "fr.inria.covermath.Arithmetic";
+    private static String ARITHMETIC_CLASS = "fr.inria.testproject.Arithmetic";
 
-    private IBundleCoverage getCoverageBundle(String exec) throws IOException {
+    private IBundleCoverage getCoverageBundle(String exec) throws Exception {
         ExecFileLoader loader = new ExecFileLoader();
         loader.load(getClass().getResource("/coverage/" + exec + "Test.exec").openStream());
         final CoverageBuilder coverageBuilder = new CoverageBuilder();
         final Analyzer analyzer = new Analyzer(loader.getExecutionDataStore(), coverageBuilder);
-        analyzer.analyzeAll(new File("example\\covermath\\target\\classes"));
+        analyzer.analyzeAll(new File(
+                getClass().getResource("/resource_classes").toURI().getPath()));
         return coverageBuilder.getBundle(exec);
     }
 
@@ -40,7 +42,7 @@ public class JuncoReportVisitorTest {
         JuncoReportVisitor visitor = new JuncoReportVisitor(
                 ARITHMETIC_CLASS, 15, "A name");
 
-        visitor.visitBundle(getCoverageBundle("fr.inria.covermath.Trigonometry"), null);
+        visitor.visitBundle(getCoverageBundle("fr.inria.testproject.Trigonometry"), null);
         Assert.assertEquals(visitor.getCoverageSum(), (float)0.0);
     }
 }
