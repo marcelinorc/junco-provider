@@ -6,7 +6,6 @@ import org.jacoco.core.data.SessionInfo;
 import org.jacoco.report.IReportVisitor;
 import org.jacoco.report.ISourceFileLocator;
 import org.jacoco.report.internal.AbstractGroupVisitor;
-import spoon.reflect.cu.SourcePosition;
 
 import java.io.IOException;
 import java.util.Collection;

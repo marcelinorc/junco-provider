@@ -11,7 +11,6 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,7 +22,7 @@ public class CoverageRunOrderCalculator implements RunOrderCalculator {
 
     private File coverageDir;
 
-    private File transplantFile;
+    //private File transplantFile;
 
     private File classesDir;
 
@@ -86,7 +85,7 @@ public class CoverageRunOrderCalculator implements RunOrderCalculator {
         }
 
         //Obtain the transplantation information from file
-        this.transplantFile = transplantFile;
+        //this.transplantFile = transplantFile;
         try {
             JSONParser parser = new JSONParser();
             JSONObject object = (JSONObject) parser.parse(new FileReader(transplantFile));
