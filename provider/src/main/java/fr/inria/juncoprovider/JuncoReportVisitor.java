@@ -36,9 +36,8 @@ public class JuncoReportVisitor extends AbstractGroupVisitor implements IReportV
      */
     private final int sourcePosition;
 
-    private List<SessionInfo> sessionInfos;
-
-    private Collection<ExecutionData> executionDatas;
+    //private List<SessionInfo> sessionInfos;
+    //private Collection<ExecutionData> executionDatas;
 
     private float coverageSum;
 
@@ -104,7 +103,9 @@ public class JuncoReportVisitor extends AbstractGroupVisitor implements IReportV
     @Override
     public void visitInfo(List<SessionInfo> sessionInfos,
                           Collection<ExecutionData> executionDatas) throws IOException {
+        /*
         this.sessionInfos = sessionInfos;
         this.executionDatas = executionDatas;
+        */
     }
 }

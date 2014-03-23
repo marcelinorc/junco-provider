@@ -68,7 +68,7 @@ public class CoverageRunOrderCalculator implements RunOrderCalculator {
      *
      * @param coverageDir Directory where to find the coverage information
      * @param transplantFile File where to find the transplant point
-     * @throws FileNotFoundException
+     * @throws CoverageRunOrderException
      */
     protected void init(File classesDir, File coverageDir, File transplantFile) throws
             CoverageRunOrderException {

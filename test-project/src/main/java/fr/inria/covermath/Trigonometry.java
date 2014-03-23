@@ -9,9 +9,6 @@ package fr.inria.covermath;
  */
 public class Trigonometry {
 
-    // A dummy variable to make some dummy conditions
-    private double lastResult = 0;
-
     //A dummy Add procedure to test some logic branches
     public double sinConditional(double a) {
 

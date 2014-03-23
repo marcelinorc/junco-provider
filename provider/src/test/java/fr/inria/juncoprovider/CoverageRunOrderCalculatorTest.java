@@ -14,7 +14,7 @@ public class CoverageRunOrderCalculatorTest {
     @Test
     public void testCreationOK() throws Exception {
         try {
-            String classesDir = getClass().getResource("/classes").toURI().getPath();
+            String classesDir = getClass().getResource("/resource_classes").toURI().getPath();
             String coverageDir = getClass().getResource("/coverage").toURI().getPath();
             String transplantFile = getClass().getResource("/transplant.json").toURI().getPath();
 
