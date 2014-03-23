@@ -2,6 +2,7 @@ package fr.inria.juncoprovider;
 
 import java.io.*;
 import java.nio.ByteBuffer;
+import java.security.ProtectionDomain;
 
 /**
  * Load classes from the test resources directory
@@ -24,9 +25,9 @@ public class TestResourcesClassLoader extends ClassLoader {
             File f = new File(resourceDir + "/" + name.replace(".", "/") + ".class");
             FileInputStream fi = new FileInputStream(f);
             //A tentative size
-            ByteBuffer bf = ByteBuffer.allocate(1024);
-            fi.getChannel().read(bf);
-            return defineClass(name, bf.array(), 0, bf.array().length);
+            ByteBuffer bf = ByteBuffer.allocate(1024 * 10);
+            int length = fi.getChannel().read(bf);
+            return defineClass(name, bf.array(), 0, length);
         } catch ( IOException e ) {
             return super.loadClass(name, resolve);
         }
