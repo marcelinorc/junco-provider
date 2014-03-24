@@ -78,16 +78,12 @@
           <!-- Properties of the Junco provier -->
           <properties>
             <property>
-              <name>jacoco:adress</name>
-              <value>${jacoco.address}</value>
-            </property>
-            <property>
-              <name>jacoco:port</name>
-              <value>${jacoco.port}</value>
-            </property>
-            <property>
               <name>html:report</name>
               <value>true</value>
+            </property>
+            <property>
+              <name>transplant:file</name>
+              <value>${basedir}/resources/transplant.json</value>
             </property>
           </properties>
           <!-- Sets the VM argument line used when unit tests are run. -->

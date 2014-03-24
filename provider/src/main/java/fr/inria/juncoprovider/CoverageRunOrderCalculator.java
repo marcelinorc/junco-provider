@@ -97,6 +97,7 @@ public class CoverageRunOrderCalculator implements RunOrderCalculator {
                 int index = pos.lastIndexOf(":");
                 positionLine = Integer.valueOf(pos.substring(index + 1));
                 positionClass = pos.substring(0, index);
+                System.out.println("[INFO] Found transplant point at: " + transplantFile.getAbsolutePath());
             } catch (NumberFormatException e ) {
                 throw new ParseException(0, object);
             }

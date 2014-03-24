@@ -97,9 +97,6 @@ public class ExecDumpClient {
 	public ExecFileLoader dump(final String address, final int port)
 			throws IOException {
         InetAddress a = InetAddress.getByName(address);
-        System.out.println("Address: " + address);
-        System.out.println("Inet Address: " + a.toString());
-
         return dump(InetAddress.getByName(address), port);
 	}
 

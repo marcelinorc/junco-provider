@@ -228,7 +228,7 @@ public class Junco4Provider
             @Override
             protected void onConnecting(final InetAddress address,
                                         final int port) {
-                logger.info(format("Connecting to %s:%s", address,
+                logger.info(format("[INFO] Connecting to %s:%s \n", address,
                                 Integer.valueOf(port)));
             }
 
