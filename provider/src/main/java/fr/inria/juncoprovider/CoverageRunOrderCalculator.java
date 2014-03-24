@@ -28,6 +28,7 @@ public class CoverageRunOrderCalculator implements RunOrderCalculator {
 
     //Would it would be better to have source positionLine?
     private int positionLine;
+
     private String positionClass;
 
     private class ClassOrder {
@@ -95,7 +96,7 @@ public class CoverageRunOrderCalculator implements RunOrderCalculator {
             try {
                 int index = pos.lastIndexOf(":");
                 positionLine = Integer.valueOf(pos.substring(index + 1));
-                positionClass = pos.substring(index - 1);
+                positionClass = pos.substring(0, index);
             } catch (NumberFormatException e ) {
                 throw new ParseException(0, object);
             }

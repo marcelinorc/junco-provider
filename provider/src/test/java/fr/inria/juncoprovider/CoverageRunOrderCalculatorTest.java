@@ -18,6 +18,10 @@ public class CoverageRunOrderCalculatorTest {
         return getClass().getResource("/" + name).toURI().getPath();
     }
 
+    /**
+     * Test the creation when everything goes OK
+     * @throws Exception
+     */
     @Test
     public void testCreationOK() throws Exception {
         try {
@@ -69,27 +73,27 @@ public class CoverageRunOrderCalculatorTest {
      */
     @Test
     public void testClassOrder() throws Exception {
-        String classesDir = getResourcePath("resource_classes");
-        String coverageDir = getResourcePath("coverage");
-        String transplantFile = getResourcePath("transplant.json");
-
         CoverageRunOrderCalculator r = new CoverageRunOrderCalculator(
-                classesDir, coverageDir, transplantFile);
+                getResourcePath("resource_classes"),
+                getResourcePath("coverage"),
+                getResourcePath("transplant.json"));
 
-        //A class loader that read classes from the resources dir
+        //A class loader that read the test classes from the resources dir
         TestResourcesClassLoader loader = new TestResourcesClassLoader();
-        loader.setResourceDir(classesDir);
+        loader.setResourceDir(getResourcePath("resource_testclasses"));
         ArrayList<Class> ac = new ArrayList<Class>();
-        ac.add(loader.loadClass("fr.inria.testproject.Arithmetic"));
-        ac.add(loader.loadClass("fr.inria.testproject.Trigonometry"));
+        ac.add(loader.loadClass("fr.inria.testproject.ArithmeticTest"));
+        ac.add(loader.loadClass("fr.inria.testproject.TrigonometryTest"));
 
         //Run the order
         TestsToRun tr = r.orderTestClasses(new TestsToRun(ac));
 
+        //The ArithmeticTest must go first since in the transplant.json file states
+        //that the transplantation point goes in class Arithmetic, line 15
         Assert.assertTrue(
-                tr.getLocatedClasses()[0].getSimpleName().equals("Arithmetic"));
+                tr.getLocatedClasses()[0].getSimpleName().equals("ArithmeticTest"));
         Assert.assertTrue(
-                tr.getLocatedClasses()[1].getSimpleName().equals("Trigonometry"));
+                tr.getLocatedClasses()[1].getSimpleName().equals("TrigonometryTest"));
     }
 
 }
