@@ -57,6 +57,8 @@ public class Junco4Provider
     private static final String TRANSPLANT_FILE = "transplant:file";
     private static final String SOURCES_DIR = "sources:dir";
     private static final String HTML_REPORT = "html:report";
+    private static final String ALWAYS_RESET_COVERAGE_INFORMATION = "alwaysResetCoverageInformation";
+    private static final String STOP_AT_FIRST_FAILURE = "stopAtFirstFailure";
 
     private final ClassLoader testClassLoader;
 
@@ -80,7 +82,11 @@ public class Junco4Provider
 
     private final ConsoleLogger logger;
 
-    
+    private boolean stopAtFirstFailure;
+
+    private boolean alwaysRestCoverageInformation;
+
+    private boolean buildCoverageInformation = false;
 
     public Junco4Provider( ProviderParameters booterParameters )
     {
@@ -89,15 +95,17 @@ public class Junco4Provider
         this.scanResult = booterParameters.getScanResult();
         this.providerParameters = booterParameters;
         Properties pp = providerParameters.getProviderProperties();
-        
-        String reportDir = pp.getProperty(REPORT_DIR, "target\\site\\junco\\");
-        String classesDir = pp.getProperty(CLASSES_DIR, "target\\classes");
+
+        String separator = System.getProperty("file.separator");
+        String reportDir = pp.getProperty(REPORT_DIR, "target"+separator+"site"+separator+"junco"+separator);
+        String classesDir = pp.getProperty(CLASSES_DIR, "target"+separator+"classes");
         String transplantFile = pp.getProperty(TRANSPLANT_FILE, "");
 
         try {
             this.runOrderCalculator = new CoverageRunOrderCalculator(
                     classesDir, reportDir, transplantFile);
         } catch (CoverageRunOrderException e ) {
+            this.buildCoverageInformation = true;
             this.runOrderCalculator = booterParameters.getRunOrderCalculator();
             logger.info("Not coverage information found when trying to calculate run order or coverage info was corrupt. Default run order assumed. \n");
             logger.info(e.getMessage());
@@ -111,6 +119,9 @@ public class Junco4Provider
         //Obtain address and port of the coverage agent
         agentAddress = pp.getProperty(AGENT_ADDRESS);
         agentPort = Integer.valueOf(pp.getProperty(AGENT_PORT, "6300"));
+
+        stopAtFirstFailure = Boolean.parseBoolean(pp.getProperty(STOP_AT_FIRST_FAILURE,"false"));
+        alwaysRestCoverageInformation = Boolean.parseBoolean(pp.getProperty(ALWAYS_RESET_COVERAGE_INFORMATION, "true"));
     }
 
     public RunResult invoke( Object forkTestSet )
@@ -150,10 +161,17 @@ public class Junco4Provider
         for ( Class aTestsToRun : testsToRun )
         {
             try {
-                //Execute the test case
-                executeTestSet(aTestsToRun, reporter, runNotifer);
-                //Dumps and reset the coverage information
-                dumpAndResetCoverageInformation(aTestsToRun.getCanonicalName());
+                if(!stopAtFirstFailure || result.getFailureCount() == 0) {
+                    //Execute the test case
+                    executeTestSet(aTestsToRun, reporter, runNotifer);
+                    //Dumps and reset the coverage information
+                    if (buildCoverageInformation || alwaysRestCoverageInformation) {
+                        dumpAndResetCoverageInformation(aTestsToRun.getCanonicalName());
+                    }
+                    if(stopAtFirstFailure && result.getFailureCount() != 0) {
+                        logger.info("[INFO] Failure in test "+aTestsToRun.getCanonicalName()+", the remaining tests will not run\n");
+                    }
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -173,9 +191,11 @@ public class Junco4Provider
      */
     private void writeReports(String testCaseName, ExecFileLoader loader) throws IOException {
         final Properties pp = providerParameters.getProviderProperties();
-        final File classesDirectory = new File(pp.getProperty(CLASSES_DIR, "target\\classes"));
-        final File sourceDirectory = new File(pp.getProperty(SOURCES_DIR, "src\\main"));
-        final File reportDirectory = new File(pp.getProperty(REPORT_DIR, "target\\site\\junco\\"));
+        String separator = System.getProperty("file.separator");
+
+        final File classesDirectory = new File(pp.getProperty(CLASSES_DIR, "target"+separator+"classes"));
+        final File sourceDirectory = new File(pp.getProperty(SOURCES_DIR, "src"+separator+"main"));
+        final File reportDirectory = new File(pp.getProperty(REPORT_DIR, "target"+separator+"site"+separator+"junco"+separator));
         reportDirectory.mkdirs();
 
         final boolean useHtmlReport = Boolean.valueOf(pp.getProperty(HTML_REPORT));
