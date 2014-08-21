@@ -3,7 +3,7 @@ import junit.framework.Assert;
 import org.jacoco.core.analysis.Analyzer;
 import org.jacoco.core.analysis.CoverageBuilder;
 import org.jacoco.core.analysis.IBundleCoverage;
-import org.jacoco.core.data.ExecFileLoader;
+import org.jacoco.core.tools.ExecFileLoader;
 import org.junit.Ignore;
 import org.junit.Test;
 

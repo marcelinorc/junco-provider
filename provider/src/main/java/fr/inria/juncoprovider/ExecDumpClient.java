@@ -11,7 +11,7 @@
  *******************************************************************************/
 package fr.inria.juncoprovider;
 
-import org.jacoco.core.data.ExecFileLoader;
+import org.jacoco.core.tools.ExecFileLoader;
 import org.jacoco.core.runtime.RemoteControlReader;
 import org.jacoco.core.runtime.RemoteControlWriter;
 

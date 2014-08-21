@@ -5,7 +5,7 @@ import org.apache.maven.surefire.util.TestsToRun;
 import org.jacoco.core.analysis.Analyzer;
 import org.jacoco.core.analysis.CoverageBuilder;
 import org.jacoco.core.analysis.IBundleCoverage;
-import org.jacoco.core.data.ExecFileLoader;
+import org.jacoco.core.tools.ExecFileLoader;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;

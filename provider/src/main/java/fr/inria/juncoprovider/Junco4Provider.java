@@ -19,7 +19,7 @@ import org.apache.maven.surefire.util.internal.StringUtils;
 import org.jacoco.core.analysis.Analyzer;
 import org.jacoco.core.analysis.CoverageBuilder;
 import org.jacoco.core.analysis.IBundleCoverage;
-import org.jacoco.core.data.ExecFileLoader;
+import org.jacoco.core.tools.ExecFileLoader;
 import org.jacoco.core.data.ExecutionDataWriter;
 import org.jacoco.report.xml.XMLFormatter;
 
@@ -79,6 +79,8 @@ public class Junco4Provider
     private final int agentPort;
 
     private final ConsoleLogger logger;
+
+    
 
     public Junco4Provider( ProviderParameters booterParameters )
     {

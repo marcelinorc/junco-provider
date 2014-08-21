@@ -1,7 +1,5 @@
 package fr.inria.juncoprovider;
 
-import java.io.FileNotFoundException;
-
 /**
  * An exception for the many causes of failure of the coverage order
  *
