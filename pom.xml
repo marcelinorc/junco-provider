@@ -12,6 +12,7 @@
 
   <modules>
       <module>provider</module>
+      <module>methodCoverageInfo</module>
       <module>test-project</module>
   </modules>
 
