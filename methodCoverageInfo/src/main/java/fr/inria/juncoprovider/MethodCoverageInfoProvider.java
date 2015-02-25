@@ -34,9 +34,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 import static java.lang.String.format;
 
@@ -50,7 +48,6 @@ public class MethodCoverageInfoProvider
     private static final String AGENT_ADDRESS = "jacoco:address";
     private static final String AGENT_PORT = "jacoco:port";
     private static final String REPORT_DIR = "report:dir";
-    private static final String TRANSPLANT_FILE = "transplant:file";
     private static final String SOURCES_DIR = "sources:dir";
     private static final String HTML_REPORT = "html:report";
 
@@ -81,12 +78,6 @@ public class MethodCoverageInfoProvider
         this.scanResult = booterParameters.getScanResult();
         this.providerParameters = booterParameters;
         Properties pp = providerParameters.getProviderProperties();
-
-        String separator = System.getProperty("file.separator");
-        String reportDir = pp.getProperty(REPORT_DIR, "target"+separator+"site"+separator+"junco"+separator);
-        String classesDir = pp.getProperty(CLASSES_DIR, "target"+separator+"classes");
-        String transplantFile = pp.getProperty(TRANSPLANT_FILE, "");
-
 
         customRunListeners = JUnit4RunListenerFactory.
                 createCustomListeners(booterParameters.getProviderProperties().getProperty("listener"));
@@ -189,16 +180,16 @@ public class MethodCoverageInfoProvider
             htmlVisitor.visitEnd();
         }
 
-        //Create a xml report
-        final XMLFormatter xmlFormatter = new XMLFormatter();
-        xmlFormatter.setOutputEncoding("UTF-8");
-        File htmlFile = new File(reportDirectory.getAbsolutePath() + "/" + testCaseName + ".xml");
-        final IReportVisitor xmlVisitor = xmlFormatter.createVisitor(new FileOutputStream(htmlFile));
-        xmlVisitor.visitInfo(loader.getSessionInfoStore().getInfos(),
-                loader.getExecutionDataStore().getContents());
-        xmlVisitor.visitBundle(bundle, new DirectorySourceFileLocator(
-                sourceDirectory, "utf-8", 4));
-        xmlVisitor.visitEnd();
+//        //Create a xml report
+//        final XMLFormatter xmlFormatter = new XMLFormatter();
+//        xmlFormatter.setOutputEncoding("UTF-8");
+//        File htmlFile = new File(reportDirectory.getAbsolutePath() + "/" + testCaseName + ".xml");
+//        final IReportVisitor xmlVisitor = xmlFormatter.createVisitor(new FileOutputStream(htmlFile));
+//        xmlVisitor.visitInfo(loader.getSessionInfoStore().getInfos(),
+//                loader.getExecutionDataStore().getContents());
+//        xmlVisitor.visitBundle(bundle, new DirectorySourceFileLocator(
+//                sourceDirectory, "utf-8", 4));
+//        xmlVisitor.visitEnd();
 
         //Write the exec to file
         FileOutputStream fo = new FileOutputStream(reportDirectory.getAbsolutePath() +
@@ -364,22 +355,50 @@ public class MethodCoverageInfoProvider
 
                 }
             }
-        }
-        else {
-            List<Method> methods = null;
-            org.junit.internal.runners.TestClass tClass = new org.junit.internal.runners.TestClass(testClass);
-            methods = tClass.getTestMethods();
-
-            for (Method method : methods) {
-                Runner junitTestRunner = Request.method(testClass, method.getName()).getRunner();
-                junitTestRunner.run(fNotifier);
-                //Dumps and reset the coverage information
-                dumpAndResetCoverageInformation(testClass.getName()+"."+method.getName());
+        } else {
+            for(String m : getTestMethodName(testClass)) {
+                logger.info(format("[INFO] run test: " + testClass.getName() + "." + m +"\n"));
+                Runner junitTestRunner = Request.method(testClass, m).getRunner();
+                junitTestRunner.run( fNotifier );
+                dumpAndResetCoverageInformation(testClass.getName()+"."+m);
 
             }
         }
+//        else {
+//            List<Method> methods = null;
+//            org.junit.internal.runners.TestClass tClass = new org.junit.internal.runners.TestClass(testClass);
+//            methods = tClass.getTestMethods();
+//            System.out.println("method: " + methods.size());
+//            for (Method method : methods) {
+//                Runner junitTestRunner = Request.method(testClass, method.getName()).getRunner();
+//                junitTestRunner.run(fNotifier);
+//                //Dumps and reset the coverage information
+//                dumpAndResetCoverageInformation(testClass.getName()+"."+method.getName());
+//
+//            }
+//        }
     }
 
+    private Set<String> getTestMethodName(Class testClass) {
+        Set<String> methods = new HashSet<String>();
+        org.junit.internal.runners.TestClass tClass = new org.junit.internal.runners.TestClass(testClass);
+        for(Method m : tClass.getTestMethods()) {
+            methods.add(m.getName());
+        }
+        for(Method m : testClass.getMethods()) {
+            if(isTestMethod(m)) {
+                methods.add(m.getName());
+            }
+        }
+        return methods;
+
+    }
+
+    private boolean isTestMethod(Method m) {
+        return m.getParameterTypes().length == 0 &&
+                m.getName().startsWith("test") &&
+                m.getReturnType().equals(Void.TYPE);
+    }
 
 
     /**
