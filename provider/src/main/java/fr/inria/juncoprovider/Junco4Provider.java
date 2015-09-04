@@ -1,6 +1,7 @@
 package fr.inria.juncoprovider;
 
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.apache.maven.surefire.common.junit4.JUnit4RunListener;
 import org.apache.maven.surefire.common.junit4.JUnit4RunListenerFactory;
 import org.apache.maven.surefire.common.junit4.JUnit4TestChecker;
@@ -59,6 +60,8 @@ public class Junco4Provider
     private static final String HTML_REPORT = "html:report";
     private static final String ALWAYS_RESET_COVERAGE_INFORMATION = "alwaysResetCoverageInformation";
     private static final String STOP_AT_FIRST_FAILURE = "stopAtFirstFailure";
+    private static final String COVERED_ONLY = "covered:only";
+    private static final String USE_XML = "use:xml";
 
     private final ClassLoader testClassLoader;
 
@@ -84,7 +87,7 @@ public class Junco4Provider
 
     private boolean stopAtFirstFailure;
 
-    private boolean alwaysRestCoverageInformation;
+    private boolean alwaysResetCoverageInformation;
 
     private boolean buildCoverageInformation = false;
 
@@ -97,17 +100,31 @@ public class Junco4Provider
         Properties pp = providerParameters.getProviderProperties();
 
         String separator = System.getProperty("file.separator");
-        String reportDir = pp.getProperty(REPORT_DIR, "target"+separator+"site"+separator+"junco"+separator);
+        String reportDir = pp.getProperty(REPORT_DIR,
+                System.getProperty("user.dir") + separator + "target"+separator+"site"+separator+"junco"+separator);
         String classesDir = pp.getProperty(CLASSES_DIR, "target"+separator+"classes");
         String transplantFile = pp.getProperty(TRANSPLANT_FILE, "");
+        boolean coveredOnly = Boolean.parseBoolean(pp.getProperty(COVERED_ONLY, "false"));
+        boolean useXml = Boolean.parseBoolean(pp.getProperty(USE_XML, "false"));
+
+        logger.info("[INFO] Junco is searching coverage at: " + reportDir + "\r\n");
+        logger.info("[INFO] Junco is searching the covered position file at: " + transplantFile+ "\r\n");
+        if ( coveredOnly ) logger.info("[INFO] Only covered test will run \n");
+        else logger.info("[INFO] Covered test run first \n");
+        logger.info("[INFO] Use XML: " + useXml + " \n");
+        logger.info("[INFO] Junco is searching the covered position file at: " + transplantFile+ "\r\n");
 
         try {
-            this.runOrderCalculator = new CoverageRunOrderCalculator(
-                    classesDir, reportDir, transplantFile);
+            CoverageRunOrderCalculator calculator
+                = new CoverageRunOrderCalculator(classesDir, reportDir, transplantFile);
+            calculator.setCoveredOnly(coveredOnly);
+            calculator.setLogger(logger);
+            calculator.setUseXML(useXml);
+            this.runOrderCalculator = calculator;
         } catch (CoverageRunOrderException e ) {
             this.buildCoverageInformation = true;
             this.runOrderCalculator = booterParameters.getRunOrderCalculator();
-            logger.info("Not coverage information found when trying to calculate run order or coverage info was corrupt. Default run order assumed. \n");
+            logger.info("\n Not coverage information found when trying to calculate run order or coverage info was corrupt. Default run order assumed. \n");
             logger.info(e.getMessage());
         }
 
@@ -121,7 +138,7 @@ public class Junco4Provider
         agentPort = Integer.valueOf(pp.getProperty(AGENT_PORT, "6300"));
 
         stopAtFirstFailure = Boolean.parseBoolean(pp.getProperty(STOP_AT_FIRST_FAILURE,"false"));
-        alwaysRestCoverageInformation = Boolean.parseBoolean(pp.getProperty(ALWAYS_RESET_COVERAGE_INFORMATION, "true"));
+        alwaysResetCoverageInformation = Boolean.parseBoolean(pp.getProperty(ALWAYS_RESET_COVERAGE_INFORMATION, "true"));
     }
 
     public RunResult invoke( Object forkTestSet )
@@ -165,7 +182,7 @@ public class Junco4Provider
                     //Execute the test case
                     executeTestSet(aTestsToRun, reporter, runNotifer);
                     //Dumps and reset the coverage information
-                    if (buildCoverageInformation || alwaysRestCoverageInformation) {
+                    if (buildCoverageInformation || alwaysResetCoverageInformation) {
                         dumpAndResetCoverageInformation(aTestsToRun.getCanonicalName());
                     }
                     if(stopAtFirstFailure && result.getFailureCount() != 0) {

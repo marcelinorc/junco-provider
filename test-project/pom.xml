@@ -87,7 +87,7 @@
                 </dependencies>
 
                 <configuration>
-                    <!-- Properties of the Junco provier -->
+                    <!-- Properties of the Junco provider -->
                     <properties>
                         <property>
                             <name>html:report</name>
@@ -96,6 +96,10 @@
                         <property>
                             <name>transplant:file</name>
                             <value>${basedir}/resources/transplant.json</value>
+                        </property>
+                        <property>
+                            <name>alwaysResetCoverageInformation</name>
+                            <value>true</value>
                         </property>
                     </properties>
                     <!-- Sets the VM argument line used when unit tests are run. -->

@@ -2,8 +2,8 @@ package fr.inria.juncoprovider;
 
 
 import junit.framework.Assert;
+import org.apache.maven.surefire.report.ConsoleLogger;
 import org.apache.maven.surefire.util.TestsToRun;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -13,6 +13,14 @@ import java.util.ArrayList;
  * Created by marcel on 20/03/14.
  */
 public class CoverageRunOrderCalculatorTest {
+
+    private class MyLogger implements ConsoleLogger {
+
+        @Override
+        public void info(String s) {
+
+        }
+    }
 
     private String getResourcePath(String name) throws Exception {
         return getClass().getResource("/" + name).toURI().getPath();
@@ -69,6 +77,19 @@ public class CoverageRunOrderCalculatorTest {
     }
 
     /**
+     * Tes the
+     */
+    @Test
+    public void testClassOrderUseXML() throws Exception {
+        CoverageRunOrderCalculator r = new CoverageRunOrderCalculator(
+                getResourcePath("resource_classes"),
+                getResourcePath("coverage"),
+                getResourcePath("transplant.json"));
+        r.setUseXML(true);
+        order(r);
+    }
+
+    /**
      * Test that the class order is properly calculated
      */
     @Test
@@ -77,7 +98,11 @@ public class CoverageRunOrderCalculatorTest {
                 getResourcePath("resource_classes"),
                 getResourcePath("coverage"),
                 getResourcePath("transplant.json"));
+        r.setCoveredOnly(false);
+        order(r);
+    }
 
+    private void order(CoverageRunOrderCalculator r) throws Exception {
         //A class loader that read the test classes from the resources dir
         TestResourcesClassLoader loader = new TestResourcesClassLoader();
         loader.setResourceDir(getResourcePath("resource_testclasses"));

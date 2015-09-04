@@ -1,4 +1,4 @@
-package fr.inria.testproject;
+package fr.inria.juncoprovider.testproject;
 
 /**
  * Created by marcel on 23/02/14.

@@ -1,5 +1,6 @@
 package fr.inria.testproject;
 
+import fr.inria.juncoprovider.testproject.Trigonometry;
 import org.junit.Test;
 import org.junit.Assert;
 
